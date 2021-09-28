@@ -25,12 +25,26 @@ function initMap() {
 
   infoWindow = new google.maps.InfoWindow();
 
-  const locationButton = document.createElement("button");
+  // firebaseの初期化
+  const firebaseConfig = {
+    apiKey: "AIzaSyB81w2rVg3MJMXsPLdRFg9U7Fhqwrmr_zw",
+    authDomain: "shohei-firebase-dev.firebaseapp.com",
+    databaseURL: "https://shohei-firebase-dev-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "shohei-firebase-dev",
+    storageBucket: "shohei-firebase-dev.appspot.com",
+    messagingSenderId: "499736915204",
+    appId: "1:499736915204:web:3adcedbb8500958141b451",
+    measurementId: "G-HB4C7MYQLG"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-  watchPositionAndUpdateMarker(map, marker);
+  const sessionId = Math.floor(Math.random() * 10000000000).toString();
+
+
+  watchPositionAndUpdateMarker(map, marker, sessionId);
 }
 
-function watchPositionAndUpdateMarker(map, marker) {
+function watchPositionAndUpdateMarker(map, marker, sessionId) {
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
@@ -46,6 +60,12 @@ function watchPositionAndUpdateMarker(map, marker) {
         marker.setPosition(pos);
 
         console.log("marker set at:", pos);
+
+        // firebaseに入れる
+        firebase.database().ref('positions/' + sessionId).set({
+          lat: pos.lat,
+          lng: pos.lng
+        });
 
       },
       () => {
